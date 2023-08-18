@@ -1,23 +1,24 @@
 // table creare script
 const BOOK_TABLE_SCRIPT = `
-CREATE TABLE IF NOT EXISTS books (
-    bookId SERIAL PRIMARY KEY,
-    title varchar(100) not null,
-    author varchar(100) not null,
-    isbn varchar(10) ,
-    publisher varchar(100) not null,
-    pages INTEGER,
-    desciption text not null,
-    releaseDate DATE,
-    storesId SERIAL not null,
-    FOREIGN KEY (storesId) REFERENCES stores(storeId)
-)
+CREATE TABLE books (
+	bookid serial4 NOT NULL,
+	title varchar(100) NOT NULL,
+	author varchar(100) NOT NULL,
+	isbn varchar NULL,
+	publisher varchar(100) NOT NULL,
+	pages int4 NULL,
+	desciption text NOT NULL,
+	releasedate int4 NULL,
+	storesid int4 NOT NULL,
+	CONSTRAINT books_pkey PRIMARY KEY (bookid)
+);
 `;
 
 const STORE_TABLE_SCRIPT = `
-CREATE TABLE IF NOT EXISTS stores (
-    storeId SERIAL PRIMARY KEY,
-    name TEXT,
-    address TEXT
-);  
+CREATE TABLE stores (
+	storeid serial4 NOT NULL,
+	"name" text NULL,
+	address text NULL,
+	CONSTRAINT stores_pkey PRIMARY KEY (storeid)
+);
 `;
