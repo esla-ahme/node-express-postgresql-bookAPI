@@ -13,6 +13,16 @@ const executeQuery = (query, values) => {
   });
 };
 
+// queries
+const queriesList = {
+  GET_STORE_LIST: "SELECT * FROM stores",
+  GET_STORE_BY_ID: "SELECT * FROM stores WHERE storeId = $1",
+ADD_STORE: "INSERT INTO stores (name, address) VALUES ($1, $2)",
+  GET_BOOK_LIST: "SELECT * FROM books",
+}
+
+
 module.exports = {
   query: executeQuery,
+  queriesList,
 };
