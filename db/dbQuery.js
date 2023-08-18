@@ -22,6 +22,10 @@ const queriesList = {
   GET_BOOK_BY_ID: "SELECT * FROM books WHERE bookId = $1",
   ADD_BOOK:
     "INSERT INTO books (title, author, isbn, publisher, pages, desciption, releaseDate, storesId) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+
+  EDIT_BOOK:
+    "UPDATE books SET title = $1, author = $2, isbn = $3, publisher = $4, pages = $5, desciption = $6, releaseDate = $7, storesId = $8 WHERE bookId = $9",
+  DELETE_BOOK: "DELETE FROM books WHERE bookId = $1",
 };
 
 

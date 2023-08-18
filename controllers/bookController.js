@@ -85,9 +85,14 @@ const addBook = async (req, res) => {
       message: "required fields are missing",
     });
   }
-  const book = new Book(null, ...Object.values(req.body));
+  const book = new Book({
+    ...req.body,
+  });
+  //   console.log(Object.keys(book), Object.values(book));
   try {
-    const dbRes = await query(queriesList.ADD_BOOK, [...Object.values(book)]);
+    const dbRes = await query(queriesList.ADD_BOOK, [
+      ...Object.values(book).filter((x) => x !== null),
+    ]);
     res.status(201).send({
       status: "success",
       message: "book added successfully",
@@ -103,8 +108,91 @@ const addBook = async (req, res) => {
   }
 };
 
+const editBook = async (req, res) => {
+  const { bookId } = req.params;
+
+  if (!Number(bookId)) {
+    return res.status(400).send({
+      status: "failed",
+      message: "valid book id (number) is required",
+    });
+  }
+  try {
+    const existingBook = await query(queriesList.GET_BOOK_BY_ID, [bookId]);
+    if (!existingBook.rows[0]) {
+      return res.status(404).send({
+        status: "failed",
+        message: "book not found",
+      });
+    }
+    // releaseDate and storesId are all lowercase in database so we need to convert it manually
+    // also override existingBook with new values from request body
+    let book = new Book({
+      ...existingBook.rows[0],
+      releaseDate: existingBook.rows[0].releasedate,
+      storesId: existingBook.rows[0].storesid,
+      ...req.body,
+    });
+
+    //delete bookId
+    delete book.bookId;
+
+    console.log("2", book);
+    const dbRes = await query(queriesList.EDIT_BOOK, [
+      ...Object.values(book),
+      bookId,
+    ]);
+
+    res.status(200).send({
+      status: "success",
+      message: "book edited successfully",
+      data: dbRes.rows[0],
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      status: "failed",
+      message: "failed to edit book: " + err.detail,
+      error: err,
+    });
+  }
+};
+
+const deleteBook = async (req, res) => {
+  const { bookId } = req.params;
+  if (!Number(bookId)) {
+    return res.status(400).send({
+      status: "failed",
+      message: "valid book id (number) is required",
+    });
+  }
+
+  try {
+    const dbRes = await query(queriesList.DELETE_BOOK, [bookId]);
+    if (!dbRes.rowCount) {
+      return res.status(404).send({
+        status: "failed",
+        message: "book does not exist",
+      });
+    }
+    res.status(200).send({
+      status: "success",
+      message: "book deleted successfully",
+      data: dbRes,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failed",
+      message: "failed to delete book",
+      error: err,
+    });
+  }
+};
+
 module.exports = {
   getBookList,
   getBookById,
   addBook,
+  editBook,
+  deleteBook,
 };
