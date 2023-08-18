@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 const BASE_URL = "/api/v1";
 
 app.use(`${BASE_URL}/stores`, require("./routes/storeRoute"));
-// app.use(`${BASE_URL}/books`, require("./routes/bookRoute"));
+app.use(`${BASE_URL}/books`, require("./routes/bookRoute"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
