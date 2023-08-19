@@ -1,5 +1,6 @@
 const { query, queriesList } = require("../db/dbQuery");
 const Book = require("../models/bookModel");
+const { validateId, validateExistence } = require("../utils/validation");
 
 const getBookList = async (req, res) => {
   try {
@@ -111,12 +112,8 @@ const addBook = async (req, res) => {
 const editBook = async (req, res) => {
   const { bookId } = req.params;
 
-  if (!Number(bookId)) {
-    return res.status(400).send({
-      status: "failed",
-      message: "valid book id (number) is required",
-    });
-  }
+  validateId(bookId, true);
+
   try {
     const existingBook = await query(queriesList.GET_BOOK_BY_ID, [bookId]);
     if (!existingBook.rows[0]) {
@@ -124,6 +121,12 @@ const editBook = async (req, res) => {
         status: "failed",
         message: "book not found",
       });
+    }
+    // check if the new storesId exists in the database
+    const { storesId } = req.body;
+    if (storesId) {
+      validateId(storesId, true);
+      await validateExistence(storesId, "store");
     }
     // releaseDate and storesId are all lowercase in database so we need to convert it manually
     // also override existingBook with new values from request body
@@ -152,7 +155,7 @@ const editBook = async (req, res) => {
     console.log(err);
     res.status(500).send({
       status: "failed",
-      message: "failed to edit book: " + err.detail,
+      message: "failed to edit book: " + err.message || err.detail,
       error: err,
     });
   }

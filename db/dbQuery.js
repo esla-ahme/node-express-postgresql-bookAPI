@@ -17,9 +17,13 @@ const executeQuery = (query, values) => {
 const queriesList = {
   GET_STORE_LIST: "SELECT * FROM stores",
   GET_STORE_BY_ID: "SELECT * FROM stores WHERE storeId = $1",
+  STORE_EXISTANCE:
+    "SELECT EXISTS (SELECT 1 FROM stores WHERE storeId = $1) AS store_exists",
   ADD_STORE: "INSERT INTO stores (name, address) VALUES ($1, $2)",
   GET_BOOK_LIST: "SELECT * FROM books",
   GET_BOOK_BY_ID: "SELECT * FROM books WHERE bookId = $1",
+  BOOK_EXISTANCE:
+    "SELECT EXISTS (SELECT 1 FROM books WHERE bookId = $1) AS book_exists",
   ADD_BOOK:
     "INSERT INTO books (title, author, isbn, publisher, pages, desciption, releaseDate, storesId) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
 
