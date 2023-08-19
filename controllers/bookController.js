@@ -57,14 +57,7 @@ const getBookById = async (req, res) => {
 /*
     example json body
     {
-       "title":"Harry Potter and the Philosopher's Stone",
-       "author":"J.K. Rowling",
-       "isbn":"1234567890",
-       "publisher":"Bloomsbury",
-       "pages":223,
-       "desciption":"Harry Potter and the Philosopher's Stone is a fantasy novel written by British author J. K. Rowling.",
-       "releaseDate":"1997",
-       "storesId":1
+        
 
     }  
 */
@@ -80,7 +73,7 @@ const addBook = async (req, res) => {
     releaseDate,
     storesId,
   } = req.body;
-  if (!title || !author || !publisher || !desciption || !storesId) {
+  if (!title || !author || !publisher || !desciption || !storesId || !Number(storesId)) {
     return res.status(400).send({
       status: "failed",
       message: "required fields are missing",
@@ -89,21 +82,23 @@ const addBook = async (req, res) => {
   const book = new Book({
     ...req.body,
   });
+  delete book.bookId;
   //   console.log(Object.keys(book), Object.values(book));
   try {
-    const dbRes = await query(queriesList.ADD_BOOK, [
-      ...Object.values(book).filter((x) => x !== null),
-    ]);
+    // check if the new storesId exists in the database
+    await validateExistence(storesId, "store");
+    const dbRes = await query(queriesList.ADD_BOOK, Object.values(book));
+    console.log(dbRes);
     res.status(201).send({
       status: "success",
       message: "book added successfully",
-      data: dbRes.rows[0],
+      data: { ...book, bookId: dbRes.rows[0].bookid },
     });
   } catch (err) {
     console.log(err);
     res.status(500).send({
       status: "failed",
-      message: "failed to add book",
+      message: "failed to add book: " + err.message || err.detail,
       error: err,
     });
   }
@@ -111,9 +106,7 @@ const addBook = async (req, res) => {
 
 const editBook = async (req, res) => {
   const { bookId } = req.params;
-
-  validateId(bookId, true);
-
+  validateId(bookId, true); // throw error if bookId is not a number
   try {
     const existingBook = await query(queriesList.GET_BOOK_BY_ID, [bookId]);
     if (!existingBook.rows[0]) {
