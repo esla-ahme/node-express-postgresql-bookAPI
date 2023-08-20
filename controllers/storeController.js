@@ -19,7 +19,6 @@ const getStoreList = async (req, res) => {
       data: stores,
     });
   } catch (err) {
-    console.log(err);
     res.status(500).send({
       status: "failed",
       message: "failed to fetch stores",

@@ -1,9 +1,10 @@
 const { query, queriesList } = require("../db/dbQuery");
 const Book = require("../models/bookModel");
 const { validateId, validateExistence } = require("../utils/validation");
-
 const Logger = require("../services/logger");
 const logger = new Logger("bookController");
+const audit = require("../services/audit");
+const { auditAction } = require("../conastants/auditAction");
 const getBookList = async (req, res) => {
   try {
     let booksData = await query(queriesList.GET_BOOK_LIST);
@@ -104,6 +105,7 @@ const addBook = async (req, res) => {
     await validateExistence(storesId, "store");
     const dbRes = await query(queriesList.ADD_BOOK, Object.values(book));
     logger.info("book added successfully", dbRes.rows[0]);
+    audit.audit(auditAction.save_book, dbRes.rows[0], null, "system");
     res.status(201).send({
       status: "success",
       message: "book added successfully",
@@ -111,6 +113,7 @@ const addBook = async (req, res) => {
     });
   } catch (err) {
     logger.error("failed to add book", err);
+    audit.audit(auditAction.save_book, null, err, "system");
     res.status(500).send({
       status: "failed",
       message: "failed to add book: " + err.message || err.detail,
@@ -155,7 +158,13 @@ const editBook = async (req, res) => {
       ...Object.values(book),
       bookId,
     ]);
-    logger.info("book edited successfully", dbRes.rows[0]);
+    logger.info("book edited successfully", { ...book, bookId: bookId });
+    audit.audit(
+      auditAction.update_book,
+      { bookid: bookId, ...req.body },
+      null,
+      "system"
+    );
     res.status(200).send({
       status: "success",
       message: "book edited successfully",
@@ -163,6 +172,7 @@ const editBook = async (req, res) => {
     });
   } catch (err) {
     logger.error("failed to edit book", err);
+    audit.audit(auditAction.update_book, null, err, "system");
     res.status(500).send({
       status: "failed",
       message: "failed to edit book: " + err.message || err.detail,
@@ -175,6 +185,12 @@ const deleteBook = async (req, res) => {
   const { bookId } = req.params;
   if (!Number(bookId)) {
     logger.error("valid book id (number) is required");
+    audit.audit(
+      auditAction.delete_book,
+      null,
+      "valid book id (number) is required",
+      "system"
+    );
     return res.status(400).send({
       status: "failed",
       message: "valid book id (number) is required",
@@ -198,6 +214,7 @@ const deleteBook = async (req, res) => {
     });
   } catch (err) {
     logger.error("failed to delete book", err);
+
     res.status(500).send({
       status: "failed",
       message: "failed to delete book",

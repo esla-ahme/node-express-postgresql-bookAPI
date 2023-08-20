@@ -22,3 +22,15 @@ CREATE TABLE stores (
 	CONSTRAINT stores_pkey PRIMARY KEY (storeid)
 );
 `;
+
+const AUDIT_TABLE_SCRIPT = `
+CREATE TABLE IF NOT EXISTS audit (
+    audit_id serial PRIMARY KEY,
+    audit_action VARCHAR ( 50 ) NOT NULL,
+    audit_data json NOT NULL,
+    audit_status INTEGER NOT NULL,
+    audit_error json,
+    audit_by VARCHAR ( 50 ),
+    audit_on TIMESTAMP NOT NULL
+)
+`;

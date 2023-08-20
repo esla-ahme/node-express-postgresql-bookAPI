@@ -6,12 +6,10 @@
 
 const winston = require("winston");
 const winstonDaily = require("winston-daily-rotate-file");
+const { dateFormat } = require("../utils/utils");
 const dotenv = require("dotenv");
 dotenv.config();
 // timestamp + level + message
-const dateFormat = () => {
-  return new Date(Date.now()).toLocaleString();
-};
 
 /*
   const oldTransport= new winston.transports.File({
@@ -30,20 +28,28 @@ class LoggerService {
     this.route = route;
     this.transport = new winstonDaily({
       filename: `${process.env.LOG_FILE_PATH}/${route}/%DATE%.log`,
-      datePattern: "YYYY-MM-DD-HH-mm",
+      datePattern: "YYYY-MM-DD",
       zippedArchive: true, // zip old files
       maxSize: "5m", // 5mb per file
       maxFiles: "7d", //minutes
     });
     this.logger = winston.createLogger({
-      level: "info",
-      format: winston.format.printf((info) => {
-        let message = `${dateFormat()} | ${info.level.toUpperCase()} | ${
-          info.message
-        } | `;
-        message = info.obj ? (message += JSON.stringify(info.obj)) : message;
-        return message;
-      }),
+      level: "debug",
+      format: winston.format.combine(
+        winston.format.printf((info) => {
+          let message = `${dateFormat()} | ${info.level.toUpperCase()} | ${
+            info.message
+          } | `;
+          if (info.obj) {
+            if (info.obj instanceof Error) {
+              message += `data:${JSON.stringify(info.obj.message)} | `;
+            } else {
+              message += `data:${JSON.stringify(info.obj)} | `;
+            }
+          }
+          return message;
+        })
+      ),
 
       transports: [
         // new winston.transports.Console(),

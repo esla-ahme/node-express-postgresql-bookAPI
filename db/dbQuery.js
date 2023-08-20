@@ -31,6 +31,8 @@ const queriesList = {
   EDIT_BOOK:
     "UPDATE books SET title = $1, author = $2, isbn = $3, publisher = $4, pages = $5, desciption = $6, releaseDate = $7, storesId = $8 WHERE bookId = $9",
   DELETE_BOOK: "DELETE FROM books WHERE bookId = $1",
+  ADD_AUDIT:
+    "INSERT INTO audit (audit_action, audit_data, audit_status, audit_error, audit_by, audit_on) VALUES ($1, $2, $3, $4, $5, $6) RETURNING audit_id",
 };
 
 
