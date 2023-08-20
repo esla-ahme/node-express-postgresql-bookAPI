@@ -2,10 +2,13 @@ const { query, queriesList } = require("../db/dbQuery");
 const Book = require("../models/bookModel");
 const { validateId, validateExistence } = require("../utils/validation");
 
+const Logger = require("../services/logger");
+const logger = new Logger("bookController");
 const getBookList = async (req, res) => {
   try {
     let booksData = await query(queriesList.GET_BOOK_LIST);
     let books = booksData.rows;
+    logger.info("books fetched successfully", books);
     res.status(200).send({
       status: "success",
       length: books.length,
@@ -13,7 +16,7 @@ const getBookList = async (req, res) => {
       data: books,
     });
   } catch (err) {
-    console.log(err);
+    logger.error("failed to fetch books", err);
     res.status(500).send({
       status: "failed",
       message: "failed to fetch books",
@@ -35,17 +38,20 @@ const getBookById = async (req, res) => {
     let bookData = await query(queriesList.GET_BOOK_BY_ID, [bookId]);
     let book = bookData.rows[0];
     if (!book) {
+      logger.error("book not found");
       return res.status(404).send({
         status: "failed",
         message: "book not found",
       });
     }
+    logger.info("book fetched successfully", book);
     res.status(200).send({
       status: "success",
       message: "book fetched successfully",
       data: book,
     });
   } catch (err) {
+    logger.error("failed to fetch book", err);
     res.send({
       status: "failed",
       message: "failed to fetch book",
@@ -73,7 +79,16 @@ const addBook = async (req, res) => {
     releaseDate,
     storesId,
   } = req.body;
-  if (!title || !author || !publisher || !desciption || !storesId || !Number(storesId)) {
+  // validate required fields
+  if (
+    !title ||
+    !author ||
+    !publisher ||
+    !desciption ||
+    !storesId ||
+    !Number(storesId)
+  ) {
+    logger.error("required fields are missing");
     return res.status(400).send({
       status: "failed",
       message: "required fields are missing",
@@ -83,19 +98,19 @@ const addBook = async (req, res) => {
     ...req.body,
   });
   delete book.bookId;
-  //   console.log(Object.keys(book), Object.values(book));
+  logger.debug("book object", book);
   try {
     // check if the new storesId exists in the database
     await validateExistence(storesId, "store");
     const dbRes = await query(queriesList.ADD_BOOK, Object.values(book));
-    console.log(dbRes);
+    logger.info("book added successfully", dbRes.rows[0]);
     res.status(201).send({
       status: "success",
       message: "book added successfully",
       data: { ...book, bookId: dbRes.rows[0].bookid },
     });
   } catch (err) {
-    console.log(err);
+    logger.error("failed to add book", err);
     res.status(500).send({
       status: "failed",
       message: "failed to add book: " + err.message || err.detail,
@@ -110,11 +125,13 @@ const editBook = async (req, res) => {
   try {
     const existingBook = await query(queriesList.GET_BOOK_BY_ID, [bookId]);
     if (!existingBook.rows[0]) {
+      logger.error("book not found");
       return res.status(404).send({
         status: "failed",
         message: "book not found",
       });
     }
+    logger.debug("existing book", existingBook.rows[0]);
     // check if the new storesId exists in the database
     const { storesId } = req.body;
     if (storesId) {
@@ -129,23 +146,23 @@ const editBook = async (req, res) => {
       storesId: existingBook.rows[0].storesid,
       ...req.body,
     });
+    logger.debug("book object to be added to database", book);
 
     //delete bookId
     delete book.bookId;
 
-    console.log("2", book);
     const dbRes = await query(queriesList.EDIT_BOOK, [
       ...Object.values(book),
       bookId,
     ]);
-
+    logger.info("book edited successfully", dbRes.rows[0]);
     res.status(200).send({
       status: "success",
       message: "book edited successfully",
       data: dbRes.rows[0],
     });
   } catch (err) {
-    console.log(err);
+    logger.error("failed to edit book", err);
     res.status(500).send({
       status: "failed",
       message: "failed to edit book: " + err.message || err.detail,
@@ -157,6 +174,7 @@ const editBook = async (req, res) => {
 const deleteBook = async (req, res) => {
   const { bookId } = req.params;
   if (!Number(bookId)) {
+    logger.error("valid book id (number) is required");
     return res.status(400).send({
       status: "failed",
       message: "valid book id (number) is required",
@@ -166,17 +184,20 @@ const deleteBook = async (req, res) => {
   try {
     const dbRes = await query(queriesList.DELETE_BOOK, [bookId]);
     if (!dbRes.rowCount) {
+      logger.error("book does not exist");
       return res.status(404).send({
         status: "failed",
         message: "book does not exist",
       });
     }
+    logger.info("book deleted successfully", dbRes);
     res.status(200).send({
       status: "success",
       message: "book deleted successfully",
       data: dbRes,
     });
   } catch (err) {
+    logger.error("failed to delete book", err);
     res.status(500).send({
       status: "failed",
       message: "failed to delete book",
