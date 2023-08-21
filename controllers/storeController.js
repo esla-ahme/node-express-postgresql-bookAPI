@@ -1,5 +1,7 @@
 const Store = require("../models/storeModel");
 const { query, queriesList } = require("../db/dbQuery");
+const audit = require("../services/audit");
+const { auditAction } = require("../conastants/auditAction");
 const getStoreList = async (req, res) => {
   try {
     let storesData = await query(queriesList.GET_STORE_LIST);
@@ -75,6 +77,7 @@ const addStore = async (req, res) => {
       store.name,
       store.address,
     ]);
+    audit.audit(auditAction.save_store, store, null, "system");
     res.status(201).send({
       status: "success",
       message: "store added successfully",

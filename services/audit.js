@@ -15,8 +15,17 @@ const { dateFormat } = require("../utils/utils");
 class AuditEventService extends EventEmitter {
   constructor() {
     super();
+    // insure only audit exist
     this.on("audit", this.addAudit);
     this.logger = new Logger("auditEventService");
+  }
+
+  static getInstance() {
+    // singleton
+    if (!this.instance) {
+      this.instance = new AuditEventService();
+    }
+    return this.instance;
   }
   audit(audiAction, data, error, auditBy) {
     let status = 200;
@@ -49,4 +58,4 @@ class AuditEventService extends EventEmitter {
   };
 }
 
-module.exports = new AuditEventService();
+module.exports = AuditEventService.getInstance();

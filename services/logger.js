@@ -58,6 +58,10 @@ class LoggerService {
     });
   }
 
+  async log(level, message, obj) {
+    this.logger.log(level, message, { route: this.route, obj });
+  }
+
   async info(message, obj) {
     this.logger.log("info", message, { route: this.route, obj });
   }
