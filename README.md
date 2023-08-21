@@ -22,7 +22,7 @@
     ER Diagram 
 ![ERD](./book_erd.png)
 
-3. ### run app
+3. ### Run the server
     To run the app
     ```bash
     npm install
@@ -33,27 +33,15 @@
 
 
 ## EndPoints
+Swagger Documentation is available on http://localhost:5000/api-docs
+
 _Get all books_ | 
 `GET api/v1/books`
 
 _Get book by id_ | `GET api/v1/books/:id`
 
 _Add book_ | `POST api/v1/books/add`
-> book object must be in the form of
-```json
-{
-   "title":"ABC", // required string
-    "author":"SomeAuther", // required string
-    "isbn":"123", // string
-    "publisher":"Pub", // required string
-    "pages":100, // number
-    "desciption":"Learn Alphabet", // required string
-    "releaseDate":2021, // number
-    "storesId":12 // required number (id of the store)
-}
-```
 _Update book_ | `PUT api/v1/books/update/:id` 
-> same as add book
 
 _delete book_ |
 `DELETE /books/delete/:id`
@@ -64,16 +52,9 @@ _Get all stores_ |  `GET api/v1/stores`
 _Get store by id_ | `GET api/v1/stores/:id`
 
 _Add store_ | `POST api/v1/stores/add`
-> store object must be in the form of
-```json
-{
-    "name":"Store Name", // required string
-    "address":"Store Address", // required string
-}
-```
 ## Services
 - [x] Logger
 - [x] AuditService
-- [ ] Swagger Documentation
+- [x] Swagger Documentation
 - [ ] Authentication
 - [ ] Testing

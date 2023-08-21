@@ -1,0 +1,281 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Books API",
+    "description": "Books and bookstores management API",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:5000",
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "books",
+      "description": "API for books in the system"
+    },
+    {
+      "name": "stores",
+      "description": "API for bookstores in the system"
+    }
+  ],
+  "schemes": ["http"],
+  "consumes": ["application/json", "multipart/form-data"],
+  "produces": ["application/json"],
+  "paths": {
+    "/books": {
+      "get": {
+        "tags": ["books"],
+        "summary": "Returns all books",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "A list of books.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/book"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["books"],
+        "summary": "Creates a new book in the store",
+        "consumes": "application/json",
+        "produces": "application/json",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Book object that needs to be added to the store",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/book"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book created",
+            "schema": {
+              "$ref": "#/definitions/book"
+            }
+          }
+        }
+      }
+    },
+    "/books/{id}": {
+      "get": {
+        "tags": ["books"],
+        "summary": "Returns a book by id",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of book to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A book.",
+            "schema": {
+              "$ref": "#/definitions/book"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["books"],
+        "summary": "Updates a book in the store with form data",
+        "consumes": "application/json",
+        "produces": "application/json",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of book that needs to be updated",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Book object that needs to be updated in the store",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/book"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book updated",
+            "schema": {
+              "$ref": "#/definitions/book"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["books"],
+        "summary": "Deletes a book",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of book that needs to be deleted",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book deleted"
+          }
+        }
+      }
+    },
+    "/stores": {
+      "get": {
+        "tags": ["stores"],
+        "summary": "Returns all stores",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "A list of stores.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/store"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["stores"],
+        "summary": "Creates a new store in the system",
+        "consumes": "application/json",
+        "produces": "application/json",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Store object that needs to be added to the system",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/store"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Store created",
+            "schema": {
+              "$ref": "#/definitions/store"
+            }
+          }
+        }
+      }
+    },
+    "/stores/{id}": {
+      "get": {
+        "tags": ["stores"],
+        "summary": "Returns a store by id",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of store to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A store.",
+            "schema": {
+              "$ref": "#/definitions/store"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "book": {
+      "required": ["title", "author", "storeid", "description"],
+      "properties": {
+        "bookid": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string",
+          "example": "The Great Gatsby"
+        },
+        "author": {
+          "type": "string",
+          "example": "F. Scott Fitzgerald"
+        },
+        "isbn": {
+          "type": "string",
+          "example": "978-3-16-148410-0"
+        },
+        "releasedate": {
+          "type": "integer",
+          "format": "date-year"
+        },
+        "storeid": {
+          "type": "integer",
+          "format": "int64",
+          "description": "must be a valid store id (exist in stores)"
+        },
+        "description": {
+          "type": "string",
+          "example": "The Great Gatsby is a 1925 novel written by American author F. Scott Fitzgerald that follows a cast of characters living in the fictional towns of West Egg and East Egg on prosperous Long Island in the summer of 1922."
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "books": {
+      "$ref": "#/definitions/book"
+    },
+    "store": {
+      "required": ["name", "address"],
+      "properties": {
+        "storeid": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "example": "Barnes & Noble"
+        },
+        "address": {
+          "type": "string",
+          "example": "123 Main St, New York, NY 10001"
+        }
+      }
+    },
+    "stores": {
+      "$ref": "#/definitions/store"
+    }
+  }
+}
